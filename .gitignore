@@ -1,3 +1,11 @@
+# Raw data
+.tsv
+.csv
+.fasta
+.gff
+.gb
+.gbk
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
