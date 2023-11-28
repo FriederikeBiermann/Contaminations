@@ -23,6 +23,7 @@ data_prokaryotes.to_csv(f"{file_path_detailed_data[:-4]}_contaminations_from_pro
 
 # Filtering out very short contaminations
 
+data_prokaryotes['length_contamination'] = data_prokaryotes['end_pos'] - data_prokaryotes['start_pos']
 data_prokaryotes_long_contaminations = data_prokaryotes[data_prokaryotes['length_contamination'] > 5000]
 
 data_prokaryotes_long_contaminations.to_csv(f"{file_path_detailed_data[:-4]}_long_contaminations_from_prokaryotes.csv")

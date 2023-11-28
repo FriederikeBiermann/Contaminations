@@ -40,7 +40,11 @@ def process_species(name):
     if taxid:
         lineage_ex = get_lineage(taxid)
         if lineage_ex:
-            lineage_info = {f'Contamination_{entry["Rank"].capitalize()}': entry["ScientificName"] for entry in lineage_ex if entry["Rank"] != "no rank"}
+            for entry in lineage_ex:
+                if entry["Rank"] != "no rank":
+                    rank = entry["Rank"].capitalize()
+                    lineage_info[f'Contamination_{rank}'] = entry["ScientificName"]
+                    lineage_info[f'Contamination_{rank}_TaxID'] = entry["TaxId"]
             lineage_info['Original_Name'] = name
             return lineage_info
     return {'Original_Name': name}
@@ -55,7 +59,7 @@ unique_names = df['contam_details'].unique()
 print(len(unique_names))
 
 # Use ThreadPoolExecutor to parallelize the process
-with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     results = executor.map(process_species, unique_names)
 
 # Convert the results to a DataFrame
