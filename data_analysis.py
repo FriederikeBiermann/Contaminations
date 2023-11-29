@@ -1,12 +1,12 @@
 import pandas as pd
 import os
 
-file_path_detailed_data = "Data/gx_details_refseq.20230416.tsv"
-file_path_summary_data = "Data/gx_summary_refseq.20230416.tsv"
+file_path_detailed_data = "Data/gx_details_genbank.20230416.tsv"
+file_path_summary_data = "Data/gx_summary_genbank.20230416.tsv"
 
 # Read the TSV file
 raw_detailed_data = pd.read_csv(file_path_detailed_data, sep='\t')
-raw_summary_data = pd.read_csv(file_path_summary_data, sep='\t')
+raw_summary_data = pd.read_csv(file_path_summary_data, sep='\t', encoding='latin1')
 print(print(f"Rows: {raw_detailed_data.shape[0]}, Columns: {raw_detailed_data.shape[1]}"))
 
 raw_detailed_data = pd.merge(raw_detailed_data , raw_summary_data, on='assembly_accession', how='left')

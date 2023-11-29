@@ -23,21 +23,22 @@ def get_lineage(taxid):
 
 def process_species(taxid):
     if taxid:
+        lineage_info = {}
         print(taxid)
         lineage_ex = get_lineage(taxid)
         if lineage_ex:
             for entry in lineage_ex:
                 if entry["Rank"] != "no rank":
                     rank = entry["Rank"].capitalize()
-                    lineage_info[f'Contamination_{rank}'] = entry["ScientificName"]
-                    lineage_info[f'Contamination_{rank}_TaxID'] = entry["TaxId"]
+                    lineage_info[f'Host_{rank}'] = entry["ScientificName"]
+                    lineage_info[f'Host_{rank}_TaxID'] = entry["TaxId"]
             lineage_info['Original_Name'] = taxid
             return lineage_info
     return {'Original_Name': taxid}
 
 # Read input and output datasets
-input_csv = "Data/gx_details_refseq.20230416_contaminations_from_prokaryotes.csv"
-output_csv = "Data/gx_details_refseq.20230416_contaminations_from_prokaryotes_lineage_host.tsv"
+input_csv = "Data/gx_details_genbank.20230416_contaminations_from_prokaryotes.csv"
+output_csv = "Data/gx_details_genbank.20230416_contaminations_from_prokaryotes_lineage_host.tsv"
 input_df = pd.read_csv(input_csv, sep=',', low_memory=False)
 input_df = input_df[np.isfinite(input_df['taxid'])]
 input_df['taxid'] = input_df['taxid'].fillna(input_df['species_taxid'])
@@ -48,7 +49,8 @@ unique_taxids = set(input_df['taxid'].unique())
 # Read the existing output file, if it exists, to get already processed taxids
 try:
     output_df = pd.read_csv(output_csv, sep='\t')
-    fully_processed_names = set(output_df[output_df['Host_Superkingdom'].notna()]['Original_Name'])
+    processed_taxids = set(output_df[output_df['Host_Superkingdom'].notna()]['Original_Name'])
+    output_df = output_df[output_df['Host_Superkingdom'].notna()]
 except FileNotFoundError:
     processed_taxids = set()
 
@@ -57,12 +59,12 @@ taxids_to_process = unique_taxids - processed_taxids
 print(f"Processing {len(taxids_to_process)} taxids.")
 
 # Use ThreadPoolExecutor to parallelize the process
-with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
     results = executor.map(process_species, taxids_to_process)
 
 # Convert the results to a DataFrame and append to the existing DataFrame
 new_lineage_data = pd.DataFrame(list(results))
-if not output_df.empty:
+if len(processed_taxids)>0:
     lineage_data = pd.concat([output_df, new_lineage_data], ignore_index=True)
 else:
     lineage_data = new_lineage_data

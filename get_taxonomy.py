@@ -39,6 +39,7 @@ def process_species(name):
     print(name)
     if taxid:
         lineage_ex = get_lineage(taxid)
+        lineage_info = {}
         if lineage_ex:
             for entry in lineage_ex:
                 if entry["Rank"] != "no rank":
@@ -49,21 +50,37 @@ def process_species(name):
             return lineage_info
     return {'Original_Name': name}
 
-# Read dataset
-input_csv = "Data/gx_details_refseq.20230416_contaminations_from_prokaryotes.csv"  # Replace with your dataset path
-output_csv = "Data/gx_details_refseq.20230416_contaminations_from_prokaryotes_lineage.tsv"  # Replace with your desired output path
-df = pd.read_csv(input_csv, sep=',')
+# Read input and output datasets
+input_csv = "Data/gx_details_genbank.20230416_contaminations_from_prokaryotes.csv"
+output_csv = "Data/gx_details_genbank.20230416_contaminations_from_prokaryotes_lineage.tsv"
+input_df = pd.read_csv(input_csv, sep=',')
+unique_names = set(input_df['contam_details'].unique())
 
-# Extract unique names
-unique_names = df['contam_details'].unique()
-print(len(unique_names))
+# Check which names have been fully processed
+try:
+    output_df = pd.read_csv(output_csv, sep='\t')
+    # Assuming that fully processed entries have non-empty values in certain columns
+    # Modify this condition based on your actual data structure
+    fully_processed_names = set(output_df[output_df['Contamination_Superkingdom'].notna()]['Original_Name'])
+    output_df = output_df[output_df['Contamination_Superkingdom'].notna()]
+except FileNotFoundError:
+    fully_processed_names = set()
+
+# Filter out the fully processed names
+names_to_process = unique_names - fully_processed_names
+print(f"Processing {len(names_to_process)} names.")
 
 # Use ThreadPoolExecutor to parallelize the process
-with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-    results = executor.map(process_species, unique_names)
+with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    results = executor.map(process_species, names_to_process)
 
-# Convert the results to a DataFrame
-lineage_data = pd.DataFrame(list(results))
+# Convert the results to a DataFrame and append to the existing DataFrame
+new_lineage_data = pd.DataFrame(list(results))
+if len(fully_processed_names)>0:
+    lineage_data = pd.concat([output_df, new_lineage_data], ignore_index=True)
+else:
+    lineage_data = new_lineage_data
 
 # Write to new CSV
-lineage_data.to_csv(output_csv, index=False)
+lineage_data.to_csv(output_csv, sep='\t', index=False)
+
