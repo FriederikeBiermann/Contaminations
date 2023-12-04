@@ -32,7 +32,7 @@ data_prokaryotes_long_contaminations.to_csv(f"{file_path_detailed_data[:-4]}_lon
 
 data_prokaryotes_long_contaminations_without_known_hit = data_prokaryotes_long_contaminations[data_prokaryotes_long_contaminations['coverage'] < 100]
 
-print(f"Rows: {data_prokaryotes_long_contaminations_without_known_hit[0]}, Columns: {data_prokaryotes_long_contaminations_without_known_hit[1]}")
+print(f"Rows: {data_prokaryotes_long_contaminations_without_known_hit.shape[0]}, Columns: {data_prokaryotes_long_contaminations_without_known_hit.shape[1]}")
 
 data_prokaryotes_long_contaminations_without_known_hit.to_csv(f"{file_path_detailed_data[:-4]}_long_contaminations_from_prokaryotes_coverage_less_100.csv")
 

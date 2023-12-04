@@ -12,6 +12,6 @@
 source ~/.bashrc
 conda activate /beegfs/home/fbiermann/miniconda3_supernew/envs/Noemi
 
-python3 prepare_gbks_for_gbc_flow.py Data/Refseq_genbank_over_5000/ Data/Refseq_fasta_over_5000/
+python3 prepare_gbks_for_gbc_flow.py /projects/p450/NCBI_contaminations/Contaminations/Data/test_for_bgcflow/ /projects/p450/NCBI_contaminations/Contaminations/Data/gx_details_refseq.20230416_long_contaminations_from_prokaryotes.csv /projects/p450/NCBI_contaminations/Contaminations/Data/gx_details_refseq.20230416_contaminations_from_prokaryotes_lineage.tsv /projects/p450/NCBI_contaminations/Contaminations/Data/test_for_bgcflow_correct_species/
 
 

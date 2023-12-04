@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=genbank
 #SBATCH --ntasks=1
+#SBATCH --mem=64G
 #SBATCH --nodes=1
 #SBATCH -o /beegfs/projects/p450/out_files/%A__NCBI_contaminations_genbank.out
 #SBATCH --time=24:00:00

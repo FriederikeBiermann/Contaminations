@@ -5,7 +5,7 @@
 #SBATCH -o /beegfs/projects/p450/out_files/Julia_antismash_%A_%a.out  
 #SBATCH -t 1-00:00  
 #SBATCH -p batch 
-#SBATCH --array=0-35%100  # Execute 100 files per node
+#SBATCH --array=0-10%100  # Execute 100 files per node
 #SBATCH -e /beegfs/projects/p450/error_files/Julia_antismash_error_%A_%a.txt
 
 
@@ -16,9 +16,9 @@ conda activate /beegfs/home/fbiermann/miniconda3_supernew/envs/antismash7
 
 # Define the input and output directories
 input_dirs=(
-   "/projects/p450/NCBI_contaminations/Contaminations/Data/Refseq_genbank_over_5000_with_gene_annotations/"
+   "/projects/p450/NCBI_contaminations/Contaminations/Data/Genbank_genbank_over_5000_coverage_smaller_40_with_gene_annotations/genbank/"
 )  # Update with your input directories
-output_parent_dir="/projects/p450/NCBI_contaminations/Contaminations/Data/Refseq_genbank_over_5000_with_gene_annotations_antismash_out/"  # Replace with your output parent directory
+output_parent_dir="/projects/p450/NCBI_contaminations/Contaminations/Data/Genbank_genbank_over_5000_coverage_smaller_40_with_gene_annotations_antismash_out/"  # Replace with your output parent directory
 
 # Get the index of the input directory for this job based on the SLURM_ARRAY_TASK_ID
 # Calculate start and end index for files to process

@@ -42,7 +42,7 @@ def process_species(name):
         lineage_info = {}
         if lineage_ex:
             for entry in lineage_ex:
-                if entry["Rank"] != "no rank":
+                if "Rank" in entry and entry ["Rank"] != "no rank":
                     rank = entry["Rank"].capitalize()
                     lineage_info[f'Contamination_{rank}'] = entry["ScientificName"]
                     lineage_info[f'Contamination_{rank}_TaxID'] = entry["TaxId"]
