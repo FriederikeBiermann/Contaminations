@@ -17,6 +17,9 @@ gbk_directory = args.gbk_dir
 csv_file = args.csv_file
 lineage_file = args.lineage_file
 output_directory = args.output_dir
+# Custom taxonomy file setup
+custom_taxonomy_file = 'custom_taxonomy.tsv'
+custom_taxonomy_data = []
 
 # Ensure the output directory exists
 if not os.path.exists(output_directory):
@@ -29,9 +32,10 @@ csv_data = []
 
 # Load organism information from the CSV file into a dictionary
 organism_info = {}
-contam_to_seq_id = {}
+# Define a dictionary to map seq_id to contam_details
+seq_id_to_contam = {}
 
-# Load organism information from the CSV file into a dictionary
+# Load contam details from the CSV file
 with open(csv_file, "r") as csv_file:
     reader = csv.DictReader(csv_file)
     for row in reader:
@@ -42,29 +46,46 @@ with open(csv_file, "r") as csv_file:
             'genus': None,  # Initialize genus as None
             'species': None,  # Initialize species as None
             'strain': None,  # Initialize strain as None
+            'classification': None
         }
-        contam_to_seq_id[contam_details] = seq_id  # Map contam_details to seq_id
-
+        seq_id_to_contam[seq_id] = contam_details  # Map seq_id to contam_details
+        if seq_id == "NZ_JUNF01000470.1":
+            print(seq_id, type(seq_id), contam_details)
+print(seq_id_to_contam)
 # Load detailed lineage information from the lineage TSV file
 with open(lineage_file, "r") as lineage_file:
     reader = csv.DictReader(lineage_file, delimiter='\t')
     for row in reader:
         original_name = row["Original_Name"]
-        # Directly access the seq_id using the contam_details
-        seq_id = contam_to_seq_id.get(original_name)
-        if seq_id:
+        species = row["Contamination_Species"]
+        print(original_name, species)
+        # Find the seq_id using a reverse search in seq_id_to_contam
+        seq_ids = [s_id for s_id, contam in seq_id_to_contam.items() if contam == original_name or contam == species]
+        for  seq_id in seq_ids:
+            print ("found")
             organism_info[seq_id]['genus'] = row["Contamination_Genus"]
             organism_info[seq_id]['species'] = row["Contamination_Species"]
             organism_info[seq_id]['strain'] = row["Contamination_Strain"]
-
+            classification = ';'.join([
+                f'd__Bacteria',
+                f'p__{row["Contamination_Phylum"]}',
+                f'c__{row["Contamination_Class"]}',
+                f'o__{row["Contamination_Order"]}',
+                f'f__{row["Contamination_Family"]}',
+                f'g__{row["Contamination_Genus"]}',
+                f's__{original_name}'
+            ])
+            organism_info[seq_id]['classification'] = classification
+print(organism_info["NZ_JUNF01000470.1"])
 # Iterate over the gbk files and update them
 for filename in os.listdir(gbk_directory):
     if filename.endswith('.gbk'):
         filepath = os.path.join(gbk_directory, filename)
         genome_id = get_string_before_second_to_last_underscore(filename)  # Extract genome ID from file name
-
+        print(genome_id)
         # Extract and update the organism info
         organism_info_entry = organism_info.get(genome_id, {})
+        print(organism_info_entry)
         organism_name = organism_info_entry.get('contam_details', '') or 'Unknown Organism'
 
         # Using organism_name.split(" ")[0] as the default for genus if it's not available or empty
@@ -84,7 +105,7 @@ for filename in os.listdir(gbk_directory):
             record.annotations['genus'] = genus
             record.annotations['species'] = species
             record.annotations['strain'] = strain
-
+        custom_taxonomy_data.append([filename,organism_info_entry.get("classification")]) 
         # Write the updated records to the new output directory
         output_filepath = os.path.join(output_directory, filename)
         with open(output_filepath, "w") as gbk_file:
@@ -92,7 +113,7 @@ for filename in os.listdir(gbk_directory):
 
         # Extract information for CSV file
         csv_data.append([
-            genome_id,
+            filename[:-4],
             'custom',
             organism_name,
             genus,
@@ -106,6 +127,12 @@ with open(samples_csv_file, mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(csv_headers)
     writer.writerows(csv_data)
+
+# Write the custom taxonomy data to TSV
+with open(custom_taxonomy_file, mode='w', newline='') as file:
+    writer = csv.writer(file, delimiter='\t')
+    writer.writerow(['user_genome', 'classification'])
+    writer.writerows(custom_taxonomy_data)
 
 print("GenBank files updated and samples CSV file created.")
 

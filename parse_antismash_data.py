@@ -56,9 +56,6 @@ def parse_clusterblast(cb_file_path):
             if line.startswith("Details:"):
                 gene_marker = False
                 hits = 1  # Indicating that the following lines contain relevant information
-            elif line == "\n" and hits:
-                # Exit after processing the first significant hit
-                break
             elif hits:
                 if line.strip() and not line.startswith(">>"):
                     if "1. " in line:
@@ -84,7 +81,7 @@ def parse_clusterblast(cb_file_path):
                         ).group(1)
                         additional_details["cumulative_blast_score"] = blast_score
                         break
-
+    print(additional_details)
     return GENOME_ID, additional_details
 
 
@@ -119,6 +116,7 @@ def antismash_workflow(antismash_paths):
 
     # Distinguish input files (i.e. GBK file and "knownclusterblast" folder)
     kcb_path = []
+    cb_path = []
     for path in antismash_paths:
         if re.search("knownclusterblast", path):
             kcb_path = re.search(".*knownclusterblast.*", path).group()
@@ -159,6 +157,10 @@ def antismash_workflow(antismash_paths):
             BGC_length = ""
             PFAM_domains = []
             MIBiG_ID = "NA"
+            additional_mibig_details = "NA"
+            additional_refseq_details = "NA"
+            RefSeq = "NA"
+
 
             for feature in record.features:
                 # Extract relevant infos from the first protocluster feature from the contig record
@@ -212,26 +214,20 @@ def antismash_workflow(antismash_paths):
                     )  # +1 because zero-based start position
                     BGC_end = feature.location.end
                     BGC_length = feature.location.end - feature.location.start + 1
-
                     # If there are knownclusterblast files for the BGC, get MIBiG IDs of their homologs
                     if kcb_files:
-                        print(kcb_files)
                         kcb_file = "{}_c{}.txt".format(
                             record.id, str(cluster_num)
                         )  # Check if this filename is among the knownclusterblast files
                         if kcb_file in kcb_files:
-                            MIBiG_ID, additional_mibig_details = ";".join(
-                                parse_clusterblast(os.path.join(kcb_path, kcb_file))
-                            )
+                            MIBiG_ID, additional_mibig_details = parse_clusterblast(os.path.join(kcb_path, kcb_file))
                     if cb_files:
-                        print(cb_files)
+                        print(cb_path, cb_files)
                         cb_file = "{}_c{}.txt".format(
                             record.id, str(cluster_num)
                         )  # Check if this filename is among the knownclusterblast files
                         if cb_file in cb_files:
-                            RefSeq, additional_refseq_details = ";".join(
-                                parse_clusterblast(os.path.join(cb_path, cb_file))
-                            )
+                            RefSeq, additional_refseq_details = parse_clusterblast(os.path.join(cb_path, cb_file))
 
                             cluster_num += 1
 
@@ -313,7 +309,7 @@ def process_antismash_directory(directory):
 
 
 main_directory = (
-    "Data/Refseq_genbank_over_5000_with_gene_annotations_antismash_out_positives"
+    "/projects/p450/NCBI_contaminations/Contaminations/Data/Genbank_genbank_over_5000_coverage_smaller_40_with_gene_annotations_antismash_out/genbank"
 )
 final_dataframe = process_antismash_directory(main_directory)
 final_dataframe.to_csv(f"{os.path.basename(main_directory)}_antismash_output_analysis.csv", index=False)

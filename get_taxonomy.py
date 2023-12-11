@@ -71,7 +71,7 @@ names_to_process = unique_names - fully_processed_names
 print(f"Processing {len(names_to_process)} names.")
 
 # Use ThreadPoolExecutor to parallelize the process
-with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
     results = executor.map(process_species, names_to_process)
 
 # Convert the results to a DataFrame and append to the existing DataFrame

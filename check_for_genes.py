@@ -3,8 +3,8 @@ import shutil
 from Bio import SeqIO
 
 # Define the source and destination directories
-source_dir = '/projects/p450/NCBI_contaminations/Contaminations/Data/Genbank_genbank_over_5000_coverage_smaller_60'  # Replace with the path to your source directory
-destination_dir = '/projects/p450/NCBI_contaminations/Contaminations/Data/Genbank_genbank_over_5000_coverage_smaller_60_with_gene_annotations'  # Replace with the path to your destination directory
+source_dir = '/projects/p450/NCBI_contaminations/Contaminations/Data/Genbank_genbank_over_5000_coverage_smaller_80'  # Replace with the path to your source directory
+destination_dir = '/projects/p450/NCBI_contaminations/Contaminations/Data/Genbank_genbank_over_5000_coverage_smaller_80_with_gene_annotations'  # Replace with the path to your destination directory
 
 # Check and create destination directory if it doesn't exist
 if not os.path.exists(destination_dir):
