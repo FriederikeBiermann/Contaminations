@@ -5,7 +5,7 @@ import matplotlib.ticker as ticker
 
 # Assuming the data is loaded correctly from the CSV file
 data = pd.read_csv(
-    "Data/gx_details_genbank.20230416_long_contaminations_from_prokaryotes_coverage_less_100.csv"
+    "Data/gx_details_genbank.20230416_long_contaminations_from_prokaryotes.csv"
 )
 
 
@@ -25,7 +25,7 @@ fig, axs = plt.subplots(1, 2, figsize=(15, 6))
 
 # Histogram in kilobases
 axs[0].hist(data["length_contamination_kb"], bins=30, color="#6982B5")
-axs[0].set_title("Histogram of Coverage")
+axs[0].set_title("Length of contamination")
 axs[0].set_xlabel("Length (kb)")
 axs[0].set_yscale("log")
 axs[0].set_ylabel("Frequency")
@@ -53,5 +53,5 @@ axs[1].xaxis.set_minor_locator(
 
 plt.tight_layout()
 plt.savefig(
-    "gx_details_genbank.20230416_long_contaminations_from_prokaryotes_coverage_less_100_histogram_length_kb.png"
+    "gx_details_genbank.20230416_long_contaminations_from_prokaryotes_coverage_histogram_length_kb.png"
 )

@@ -2,6 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import chi2_contingency
+import matplotlib.patches as mpatches
 
 # Load your data
 filename = "Data/gx_details_refseq.20230416_contaminations_from_prokaryotes.csv"
@@ -105,12 +106,20 @@ for label in plt.gca().get_xticklabels():
 
 
 # Set plot title and labels
-plt.title(f"Heatmap with Chi-Square: {chi2:.2f}, p-value: {p:.3e}")
+plt.title(f"Heatmap of host phyla and top 30 contamination genera")
 plt.xlabel("Contamination Family")
 plt.ylabel("Host Phylum")
+
+# Create legends
+kingdom_patches = [mpatches.Patch(color=color, label=kingdom) for kingdom, color in kingdom_colors.items()]
+phylum_patches = [mpatches.Patch(color=color, label=phylum) for phylum, color in contamination_phylum_colors.items()]
+
+# Add legends to the plot
+plt.legend(handles=kingdom_patches, title="Host Kingdoms", loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.)
+plt.gca().add_artist(plt.legend(handles=phylum_patches, title="Contamination Phyla", loc='lower left', bbox_to_anchor=(1.05, 0), borderaxespad=0.))
+
 
 plt.xticks(rotation=90)
 plt.yticks(rotation=0)
 plt.tight_layout()
-plt.show()
 plt.savefig("heatmap_phyla_genera.svg")

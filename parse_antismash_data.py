@@ -312,5 +312,5 @@ main_directory = (
     "/projects/p450/NCBI_contaminations/Contaminations/Data/Genbank_genbank_over_5000_coverage_smaller_40_with_gene_annotations_antismash_out/genbank"
 )
 final_dataframe = process_antismash_directory(main_directory)
-final_dataframe.to_csv(f"{os.path.basename(main_directory)}_antismash_output_analysis.csv", index=False)
+final_dataframe.to_csv(f"{os.path.basename(main_director)}_antismash_output_analysis.csv", index=False)
 

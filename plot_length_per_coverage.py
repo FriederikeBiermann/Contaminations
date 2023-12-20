@@ -65,10 +65,11 @@ def plot_statistics_per_coverage(
     plt.ylabel("Sequence Length (Log Scale)")
     plt.legend()
     plt.grid(True)
-    plt.show()
+
     plt.savefig(
         "gx_details_genbank.20230416_long_contaminations_from_prokaryotes_coverage_less_100_length_coverage_median_modus.png"
     )
+    plt.show()
 
 
 data = pd.read_csv(
